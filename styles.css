@@ -1,0 +1,10 @@
+.user {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.post {
+    margin-left: 2rem;
+    background: #f5f5f5;
+}
