@@ -1,5 +1,8 @@
 "use strict";
 
+import { User } from "./class.user.js";
+import { Post } from "./class.post.js";
+
 /*******************************************************
  *    Asynchronotrigger - 100p
  *
@@ -25,5 +28,78 @@
  *    where "1" stands for the posts ID of course.
  *
  *    I believe in...
- *    You - 2026-06-09
+ *    maikypi - 2026-06-14
  *  *******************************************************/
+
+
+const app = document.querySelector("#app");
+
+const usersUrl = "https://jsonplaceholder.typicode.com/users";
+const postsUrl = "https://jsonplaceholder.typicode.com/posts";
+
+let users = [];
+let posts = [];
+
+async function init() {
+    const usersResponse = await fetch(usersUrl);
+    const usersData = await usersResponse.json();
+
+    users = usersData.map(userData => new User(userData));
+
+    const postsResponse = await fetch(postsUrl);
+    const postsData = await postsResponse.json();
+
+    posts = postsData.map(postData => new Post(postData));
+
+    postsData.forEach((postData, index) => {
+        const user = users.find(user => user.id === postData.userId);
+
+        if (user) {
+            user.addPost(posts[index]);
+        }
+    });
+
+    printUsers();
+}
+
+function printUsers() {
+    app.innerHTML = users.map(user => user.print()).join("");
+}
+
+app.addEventListener("click", async function (event) {
+    if (event.target.classList.contains("toggle-posts")) {
+        const userId = event.target.dataset.userId;
+        const postsContainer = document.querySelector(`#posts-${userId}`);
+
+        postsContainer.classList.toggle("hidden");
+
+        event.target.textContent = postsContainer.classList.contains("hidden")
+            ? "Posts anzeigen"
+            : "Posts verstecken";
+    }
+
+    if (event.target.classList.contains("load-comments")) {
+        const postId = event.target.dataset.postId;
+        const post = posts.find(post => post.id === Number(postId));
+        const commentsContainer = document.querySelector(`#comments-${postId}`);
+
+        if (post.comments.length > 0) {
+            commentsContainer.innerHTML = post.printComments();
+            return;
+        }
+
+        const response = await fetch(
+            `https://jsonplaceholder.typicode.com/comments?postId=${postId}`
+        );
+
+        const comments = await response.json();
+
+        post.setComments(comments);
+        commentsContainer.innerHTML = post.printComments();
+
+        event.target.textContent = "Kommentare geladen";
+        event.target.disabled = true;
+    }
+});
+
+init();
