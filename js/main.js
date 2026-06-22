@@ -1,7 +1,3 @@
-"use strict";
-
-import { User } from "./class.user.js";
-import { Post } from "./class.post.js";
 
 /*******************************************************
  *    Asynchronotrigger - 100p
@@ -32,30 +28,35 @@ import { Post } from "./class.post.js";
  *  *******************************************************/
 
 
-const app = document.querySelector("#app");
+"use strict";
 
-const usersUrl = "https://jsonplaceholder.typicode.com/users";
-const postsUrl = "https://jsonplaceholder.typicode.com/posts";
+import { User } from "./class.user.js";
+import { Post } from "./class.post.js";
+
+const APP = document.querySelector("#app");
+
+const USERS_URL = "https://jsonplaceholder.typicode.com/users";
+const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
 let users = [];
 let posts = [];
 
 async function init() {
-    const usersResponse = await fetch(usersUrl);
-    const usersData = await usersResponse.json();
+    const USERS_RESPONSE = await fetch(USERS_URL);
+    const USERS_DATA = await USERS_RESPONSE.json();
 
-    users = usersData.map(userData => new User(userData));
+    users = USERS_DATA.map(userData => new User(userData));
 
-    const postsResponse = await fetch(postsUrl);
-    const postsData = await postsResponse.json();
+    const POSTS_RESPONSE = await fetch(POSTS_URL);
+    const POSTS_DATA = await POSTS_RESPONSE.json();
 
-    posts = postsData.map(postData => new Post(postData));
+    posts = POSTS_DATA.map(postData => new Post(postData));
 
-    postsData.forEach((postData, index) => {
-        const user = users.find(user => user.id === postData.userId);
+    POSTS_DATA.forEach((postData, index) => {
+        const USER = users.find(user => user.id === postData.userId);
 
-        if (user) {
-            user.addPost(posts[index]);
+        if (USER) {
+            USER.addPost(posts[index]);
         }
     });
 
@@ -63,39 +64,39 @@ async function init() {
 }
 
 function printUsers() {
-    app.innerHTML = users.map(user => user.print()).join("");
+    APP.innerHTML = users.map(user => user.print()).join("");
 }
 
-app.addEventListener("click", async function (event) {
+APP.addEventListener("click", async function (event) {
     if (event.target.classList.contains("toggle-posts")) {
-        const userId = event.target.dataset.userId;
-        const postsContainer = document.querySelector(`#posts-${userId}`);
+        const USER_ID = event.target.dataset.userId;
+        const POSTS_CONTAINER = document.querySelector(`#posts-${USER_ID}`);
 
-        postsContainer.classList.toggle("hidden");
+        POSTS_CONTAINER.classList.toggle("hidden");
 
-        event.target.textContent = postsContainer.classList.contains("hidden")
+        event.target.textContent = POSTS_CONTAINER.classList.contains("hidden")
             ? "Posts anzeigen"
             : "Posts verstecken";
     }
 
     if (event.target.classList.contains("load-comments")) {
-        const postId = event.target.dataset.postId;
-        const post = posts.find(post => post.id === Number(postId));
-        const commentsContainer = document.querySelector(`#comments-${postId}`);
+        const POST_ID = event.target.dataset.postId;
+        const POST = posts.find(post => post.id === Number(POST_ID));
+        const COMMENTS_CONTAINER = document.querySelector(`#comments-${POST_ID}`);
 
-        if (post.comments.length > 0) {
-            commentsContainer.innerHTML = post.printComments();
+        if (POST.comments.length > 0) {
+            COMMENTS_CONTAINER.innerHTML = POST.printComments();
             return;
         }
 
-        const response = await fetch(
-            `https://jsonplaceholder.typicode.com/comments?postId=${postId}`
+        const RESPONSE = await fetch(
+            `https://jsonplaceholder.typicode.com/comments?postId=${POST_ID}`
         );
 
-        const comments = await response.json();
+        const COMMENTS = await RESPONSE.json();
 
-        post.setComments(comments);
-        commentsContainer.innerHTML = post.printComments();
+        POST.setComments(COMMENTS);
+        COMMENTS_CONTAINER.innerHTML = POST.printComments();
 
         event.target.textContent = "Kommentare geladen";
         event.target.disabled = true;
